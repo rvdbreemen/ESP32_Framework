@@ -38,7 +38,7 @@
   #include <ESPmDNS.h>
   #include <WiFiUdp.h>            // part of ESP32 Core
   //#include <Esp32WifiManager.h>
-  #include <ESP_WiFiManager.h>  // https://github.com/khoih-prog/ESP_WiFiManager
+  #include <WiFiManager.h>
 
   #include <FS.h>
   //#include <SPIFFS.h>
@@ -47,8 +47,6 @@
   #include "UpdateServerHtml.h"   
 
   WebServer        httpServer(80);
-
-
   ESP32HTTPUpdateServer httpUpdater(true);
 
 //static      FSInfo SPIFFSinfo;
@@ -57,7 +55,7 @@ bool        isConnected = false;
 
 //gets called when WiFiManager enters configuration mode
 //===========================================================================================
-void configModeCallback (ESP_WiFiManager *myWiFiManager) 
+void configModeCallback (WiFiManager *myWiFiManager) 
 {
   DebugTln(F("Entered config mode\r"));
   DebugTln(WiFi.softAPIP().toString());
@@ -70,7 +68,7 @@ void configModeCallback (ESP_WiFiManager *myWiFiManager)
 //===========================================================================================
 void startWiFi(const char* hostname, int timeOut) 
 {
-  ESP_WiFiManager manageWiFi;
+  WiFiManager manageWiFi;
   uint32_t lTime = millis();
   String thisAP = String(hostname) + "-" + WiFi.macAddress();
 

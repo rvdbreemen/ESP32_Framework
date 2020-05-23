@@ -1,11 +1,12 @@
 /* 
 ***************************************************************************  
-**  Program : FSexplorer
-**  Version : 3.2   15-05-202
+**  Program  : FSexplorer
+**  Version  : 23-5-2020
+**  Ported to ESP32 by Robert van den Breemen
 **
 **  Mostly stolen from https://www.arduinoforum.de/User-Fips
 **  For more information visit: https://fipsok.de
-**  See also https://www.arduinoforum.de/arduino-Thread-SPIFFS-DOWNLOAD-UPLOAD-DELETE-ESP32-NodeMCU
+**  See also https://www.arduinoforum.de/arduino-Thread-SPIFFS-DOWNLOAD-UPLOAD-DELETE-Esp8266-NodeMCU
 **
 ***************************************************************************      
   Copyright (c) 2018 Jens Fleischer. All rights reserved.
@@ -19,27 +20,7 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
 *******************************************************************
-**      Usage:
-**      
-**      setup()
-**      {
-**        setupFSexplorer();
-**        httpServer.serveStatic("/FSexplorer.png",   SPIFFS, "/FSexplorer.png");
-**        httpServer.on("/",          sendIndexPage);
-**        httpServer.on("/index",     sendIndexPage);
-**        httpServer.on("/index.html",sendIndexPage);
-**        httpServer.begin();
-**      }
-**      
-**      loop()
-**      {
-**        httpServer.handleClient();
-**        .
-**        .
-**      }
 */
-
-#define MAX_FILES_IN_LIST   25
 
 const char Helper[] = R"(
   <br>You first need to upload these two files:
@@ -79,16 +60,11 @@ void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebund
   httpServer.on("/update", updateFirmware);
   httpServer.onNotFound([]() 
   {
-    if (Verbose) DebugTf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
+        DebugTf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
     if (httpServer.uri().indexOf("/api/") == 0) 
     {
-      if (Verbose) DebugTf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
+        DebugTf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
       processAPI();
-    }
-    else if (httpServer.uri() == "/")
-    {
-      DebugTln("index requested..");
-      sendIndexPage();
     }
     else
     {
@@ -105,9 +81,71 @@ void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebund
 
 
 //=====================================================================================
-void APIlistFiles()             // Senden aller Daten an den Client
+#if defined(ESP8266)
+
+void ESP8266_APIlistFiles()
 {   
-typedef struct _fileMeta {
+  FSInfo SPIFFSinfo;
+
+  typedef struct _fileMeta {
+    char    Name[30];     
+    int32_t Size;
+  } fileMeta;
+
+  _fileMeta dirMap[30];
+  int fileNr = 0;
+  
+  Dir dir = SPIFFS.openDir("/");         // List files on SPIFFS
+  while (dir.next())  
+  {
+    dirMap[fileNr].Name[0] = '\0';
+    strncat(dirMap[fileNr].Name, dir.fileName().substring(1).c_str(), 29); // remove leading '/'
+    dirMap[fileNr].Size = dir.fileSize();
+    fileNr++;
+  }
+
+  // -- bubble sort dirMap op .Name--
+  for (int8_t y = 0; y < fileNr; y++) {
+    yield();
+    for (int8_t x = y + 1; x < fileNr; x++)  {
+      //DebugTf("y[%d], x[%d] => seq[y][%s] / seq[x][%s] ", y, x, dirMap[y].Name, dirMap[x].Name);
+      if (compare(String(dirMap[x].Name), String(dirMap[y].Name)))  
+      {
+        //Debug(" !switch!");
+        fileMeta temp = dirMap[y];
+        dirMap[y] = dirMap[x];
+        dirMap[x] = temp;
+      } /* end if */
+      //Debugln();
+    } /* end for */
+  } /* end for */
+
+  for (int8_t x = 0; x < fileNr; x++)  
+  {
+    DebugTln(dirMap[x].Name);
+  }
+
+  String temp = "[";
+  for (int f=0; f < fileNr; f++)  
+  {
+    if (temp != "[") temp += ",";
+    temp += R"({"name":")" + String(dirMap[f].Name) + R"(","size":")" + formatBytes(dirMap[f].Size) + R"("})";
+  }
+  SPIFFS.info(SPIFFSinfo);
+  temp += R"(,{"usedBytes":")" + formatBytes(SPIFFSinfo.usedBytes * 1.05) + R"(",)" +       // Berechnet den verwendeten Speicherplatz + 5% Sicherheitsaufschlag
+          R"("totalBytes":")" + formatBytes(SPIFFSinfo.totalBytes) + R"(","freeBytes":")" + // Zeigt die Größe des Speichers
+          (SPIFFSinfo.totalBytes - (SPIFFSinfo.usedBytes * 1.05)) + R"("}])";               // Berechnet den freien Speicherplatz + 5% Sicherheitsaufschlag
+  httpServer.send(200, "application/json", temp);
+  
+}// ESP8266_APIlistFiles()
+
+#elif defined(ESP32)
+
+void ESP32_APIlistFiles()
+{   
+//  FSInfo SPIFFSinfo;
+
+  typedef struct _fileMeta {
     char    Name[30];     
     int32_t Size;
   } fileMeta;
@@ -178,9 +216,19 @@ typedef struct _fileMeta {
   temp += R"(,{"usedBytes":")" + formatBytes(SPIFFS.usedBytes() * 1.05) + R"(",)" +       // Berechnet den verwendeten Speicherplatz + 5% Sicherheitsaufschlag
           R"("totalBytes":")" + formatBytes(SPIFFS.totalBytes()) + R"(","freeBytes":")" + // Zeigt die Größe des Speichers
           (SPIFFS.totalBytes() - (SPIFFS.usedBytes() * 1.05)) + R"("}])";               // Berechnet den freien Speicherplatz + 5% Sicherheitsaufschlag
-  
   httpServer.send(200, "application/json", temp);
   
+}// ESP32_APIlistFiles()
+#endif
+
+
+void APIlistFiles()             // Senden aller Daten an den Client
+{   
+#if defined(ESP8266)
+  ESP8266_APIlistFiles();
+#elif defined(ESP32)
+  ESP32_APIlistFiles();
+#endif
 } // APIlistFiles()
 
 
@@ -256,6 +304,8 @@ const String &contentType(String& filename)
   else if (filename.endsWith(".css")) filename = "text/css";
   else if (filename.endsWith(".js")) filename = "application/javascript";
   else if (filename.endsWith(".json")) filename = "application/json";
+//  else if (filename.endsWith(".htm")) filename = "text/html";
+//  else if (filename.endsWith(".html")) filename = "text/html";
   else if (filename.endsWith(".png")) filename = "image/png";
   else if (filename.endsWith(".gif")) filename = "image/gif";
   else if (filename.endsWith(".jpg")) filename = "image/jpeg";
@@ -272,16 +322,26 @@ const String &contentType(String& filename)
 //=====================================================================================
 bool freeSpace(uint16_t const& printsize) 
 {    
-  return (SPIFFS.totalBytes() - (SPIFFS.usedBytes()* 1.05) > printsize) ? true : false;
-  
+   #if defined(ESP8266)
+    FSInfo SPIFFSinfo;
+    SPIFFS.info(SPIFFSinfo);
+    Debugln(formatBytes(SPIFFSinfo.totalBytes - (SPIFFSinfo.usedBytes * 1.05)) + " bytes ruimte in SPIFFS");
+    return (SPIFFSinfo.totalBytes - (SPIFFSinfo.usedBytes * 1.05) > printsize) ? true : false;
+  #elif defined(ESP32)
+    return (SPIFFS.totalBytes() - (SPIFFS.usedBytes()* 1.05) > printsize) ? true : false;
+  #endif
 } // freeSpace()
 
 
 //=====================================================================================
 void updateFirmware()
 {
+#ifdef USE_UPDATE_SERVER
   DebugTln(F("Redirect to updateIndex .."));
   doRedirect("wait ... ", 1, "/updateIndex", false);
+#else
+  doRedirect("UpdateServer not available", 10, "/", false);
+#endif
       
 } // updateFirmware()
 
@@ -289,7 +349,7 @@ void updateFirmware()
 void reBootESP()
 {
   DebugTln(F("Redirect and ReBoot .."));
-  doRedirect("Reboot ESP32_Framework ..", 60, "/", true);
+  doRedirect("Reboot DSMR-logger ..", 60, "/", true);
       
 } // reBootESP()
 
