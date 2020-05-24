@@ -1,11 +1,11 @@
 /* 
 ***************************************************************************  
 **  Program : FSexplorer
-**  Version : 3.2   15-05-202
+**  Version : 3.2.1   24-05-2020
 **
 **  Mostly stolen from https://www.arduinoforum.de/User-Fips
 **  For more information visit: https://fipsok.de
-**  See also https://www.arduinoforum.de/arduino-Thread-SPIFFS-DOWNLOAD-UPLOAD-DELETE-ESP32-NodeMCU
+**  See also https://www.arduinoforum.de/arduino-Thread-SPIFFS-DOWNLOAD-UPLOAD-DELETE-ESP8266-NodeMCU
 **
 ***************************************************************************      
   Copyright (c) 2018 Jens Fleischer. All rights reserved.

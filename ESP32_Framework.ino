@@ -11,7 +11,7 @@
 
 // WiFi Server object and parameters
 WiFiServer server(80);
-
+Timezone CET; //TZ needs to be declare as global 
 
 //=====================================================================
 void setup()
@@ -52,7 +52,6 @@ void setup()
   //--- ezTime initialisation
   setDebug(INFO);  
   waitForSync(); 
-  Timezone CET;
   CET.setLocation(F("Europe/Amsterdam"));
   CET.setDefault(); 
   
