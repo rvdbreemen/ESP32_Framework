@@ -36,7 +36,7 @@
   #include <WiFiClient.h>
   #include <WebServer.h>
   #include <ESPmDNS.h>
-  #include <WiFiUdp.h>            // part of ESP32 Core
+  #include <WiFiUdp.h>      // part of ESP32 Core
   #include <WiFiManager.h>  // https://github.com/tzapu/WiFiManager/releases 2.0.1-alpha
 
   #include <FS.h>
@@ -45,10 +45,9 @@
   #include "ESP32ModUpdateServer.h"  // <<modified version of ESP32ModUpdateServer.h by Robert>>
   #include "UpdateServerHtml.h"   
 
-  WebServer        httpServer(80);
+  WebServer             httpServer(80);
   ESP32HTTPUpdateServer httpUpdater(true);
 
-//static      FSInfo SPIFFSinfo;
 bool        SPIFFSmounted; 
 bool        isConnected = false;
 
@@ -56,9 +55,12 @@ bool        isConnected = false;
 //===========================================================================================
 void configModeCallback (WiFiManager *myWiFiManager) 
 {
+  //char cMsg[100];
   DebugTln(F("Entered config mode\r"));
   DebugTln(WiFi.softAPIP().toString());
   //if you used auto generated SSID, print it
+  //snprintf(cMsg, sizeof(cMsg), "Connect to AP '%s' and configure WiFi on  192.168.4.1   ", _HOSTNAME);
+  //DebugTln(cMsg);
   DebugTln(myWiFiManager->getConfigPortalSSID());
 
 } // configModeCallback()
@@ -98,6 +100,8 @@ void startWiFi(const char* hostname, int timeOut)
     DebugTf(" took [%d] seconds ==> ERROR!\r\n", (millis() - lTime) / 1000);
     return;
   }
+  
+  WiFi.setSleep(false);// <--- this command disables WiFi energy save mode and eliminate connected():
   
   Debugln();
   DebugT(F("Connected to " )); Debugln (WiFi.SSID());

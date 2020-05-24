@@ -31,21 +31,17 @@
   /*---- start macro's ------------------------------------------------------------------*/
   
   #define Debug(...)      ({ DEBUG_PORT.print(__VA_ARGS__);         \
-                             if (TelnetStream.available())          \
-                                TelnetStream.print(__VA_ARGS__);    \
+                             TelnetStream.print(__VA_ARGS__);       \
                           })
   #define Debugln(...)    ({ DEBUG_PORT.println(__VA_ARGS__);       \
-                             if (TelnetStream.available())          \
-                                TelnetStream.println(__VA_ARGS__);  \
+                             TelnetStream.println(__VA_ARGS__);     \
                           })
   #define Debugf(...)     ({ DEBUG_PORT.printf(__VA_ARGS__);        \
-                             if (TelnetStream.available())          \
-                                TelnetStream.printf(__VA_ARGS__);   \
+                             TelnetStream.printf(__VA_ARGS__);      \
                           })
   
   #define DebugFlush()    ({ DEBUG_PORT.flush();                    \
-                             if (TelnetStream.available())          \
-                                TelnetStream.flush();               \
+                             TelnetStream.flush();               \
                           })
   
   
@@ -69,12 +65,11 @@
      
     snprintf(_bol, sizeof(_bol), "[%02d:%02d:%02d][%7u|%6u] %-12.12s(%4d): ", \
                   hour(), minute(), second(), \
-                  ESP.getFreeHeap(), ESP_GET_FREE_BLOCK(),\
+                  ESP.getFreeHeap(), ESP.getMaxAllocHeap(),\
                   fn, line);
                    
     DEBUG_PORT.print (_bol);
-    if (TelnetStream.available())  
-      TelnetStream.print(_bol);
+    TelnetStream.print(_bol);
   }
   
   #endif // DEBUG_H 
