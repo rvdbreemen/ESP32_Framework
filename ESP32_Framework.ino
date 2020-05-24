@@ -64,7 +64,8 @@ void setup()
   waitForSync(); 
   Timezone CET;
   CET.setLocation(F("Europe/Amsterdam"));
-   
+  CET.setDefault(); 
+  
   Serial.println("UTC time: "+ UTC.dateTime());
   Serial.println("CET time: "+ CET.dateTime());
 
