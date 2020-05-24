@@ -15,9 +15,9 @@ R"(
     <div class="header">
       <h1>
         <span id="sysName">ESP32_Framework</span> &nbsp; &nbsp; &nbsp;
-        <span id="devName"    style='font-size: small;'>-</span> &nbsp;
-        <span id="devVersion" style='font-size: small;'>[version]</span>
-        <span id='theTime' class='nav-item nav-clock'>00:00</span>
+        <span id="devName"    style='font-size: small;'>devName</span> &nbsp;
+        <span id="devVersion" style='font-size: small;'>[devVersion]</span>
+        <span id='theTime' class='nav-item nav-clock'>theTime</span>
       </h1>
     </div>
     </font>
@@ -33,7 +33,7 @@ R"(
       </div>
       <br/>
       <div id="mainPage">
-        <div id="waiting">Wait! retrieving local messages .....</div>
+        <div id="waiting">Wait! loading page .....</div>
       </div>
     </div>
 
@@ -59,20 +59,19 @@ R"(
     <div id="message" class="bottom left-0">-</div>
   
     <script>
-      function loadCSSIfNotAlreadyLoadedForSomeReason () 
-      {
-        var ss = document.styleSheets;
-        for (var i = 0, max = ss.length; i < max; i++) {
-          if (ss[i].href == "/index.css")
-            return;
-        }
-        var link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = "/index.css";
-
-        document.getElementsByTagName("head")[0].appendChild(link);
+      console.log("now continue with the bootstrapMain");
+      if (typeof bootsTrapMain !== "function") { 
+        console.log("bootsTrapMain() does NOT exist ;-) ");
+        var mainJaveScript = '/index.js';
+        var el = document.createElement('script');
+        el.async = false;
+        el.src = mainJaveScript;
+        el.type = 'text/javascript';
+        (document.getElementsByTagName('HEAD')[0]||document.body).appendChild(el);
       }
-      loadCSSIfNotAlreadyLoadedForSomeReason();
+      document.getElementById("M_FSexplorer").src="/FSexplorer.png";
+      document.getElementById("Settings").src="/settings.png";
+      document.getElementById("S_FSexplorer").src="/FSexplorer.png";
       window.onload=bootsTrapMain;
     </script>
 

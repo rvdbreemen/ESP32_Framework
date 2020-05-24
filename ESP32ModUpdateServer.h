@@ -25,6 +25,16 @@
 #include <WebServer.h>
 #include <Update.h>
 
+#ifndef Debug
+  //#warning Debug() was not defined!
+  #define Debug(...)    ({ Serial.print(__VA_ARGS__); })  
+  #define Debugln(...)  ({ Serial.println(__VA_ARGS__); })  
+  #define Debugf(...)   ({ Serial.printf(__VA_ARGS__); })  
+//#else
+//  #warning Seems Debug() is already defined!
+#endif
+
+
 class ESP32HTTPUpdateServer
 {
 private:
@@ -46,12 +56,12 @@ public:
 
   void setIndexPage(const char *indexPage)
   {
-  _serverIndex = indexPage;
+    _serverIndex = indexPage;
   }
 
   void setSuccessPage(const char *successPage)
   {
-  _serverSuccess = successPage;
+    _serverSuccess = successPage;
   }  
 
   void setup(WebServer* server, const char* path = "/update", const char* username = "", const char* password = "")
@@ -71,12 +81,15 @@ public:
     });
 
     // Post of the file handling
-    _server->on(path, HTTP_POST, [&]() {
+    _server->on(path, HTTP_POST, [&]() 
+    {
       _server->client().setNoDelay(true);
       _server->send_P(200, "text/html", (Update.hasError()) ? "FAIL" : _serverSuccess);
       delay(100);
       _server->client().stop();
+      delay(1000);
       ESP.restart();
+      delay(1000);
     }, [&]() {
       HTTPUpload& upload = _server->upload();
 
@@ -86,8 +99,10 @@ public:
         if (!(_username.length() == 0 || _password.length() == 0 || _server->authenticate(_username.c_str(), _password.c_str())))
         {
           if (_serialDebugging)
+          {
             Serial.printf("Unauthenticated Update\n");
-
+          }
+          Debugf("Unauthenticated Update\r\n");
           return;
         }
 
@@ -97,29 +112,54 @@ public:
           Serial.setDebugOutput(true);
           Serial.printf("Update: %s\n", upload.filename.c_str());
         }
+        Debugf("Update: %s\r\n", upload.filename.c_str());
 
         // Starting update
         bool error = Update.begin(UPDATE_SIZE_UNKNOWN);
         if (_serialDebugging && error)
+        {
           Update.printError(Serial);
-      }
+        }
+        
+      } // UPLOAD_FILE_START
+      
       else if (upload.status == UPLOAD_FILE_WRITE) 
       {
-        if (Update.write(upload.buf, upload.currentSize) != upload.currentSize && _serialDebugging) 
+        Debug(".");
+        if (Update.write(upload.buf, upload.currentSize) != upload.currentSize && _serialDebugging)
+        { 
           Update.printError(Serial);
+        }
       }
       else if (upload.status == UPLOAD_FILE_END) 
       {
-        if (Update.end(true) && _serialDebugging)
-          Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+        if (Update.end(true))
+        {
+          if (_serialDebugging)
+          {
+            Serial.printf("Update Success: %u bytes\nRebooting...\n", upload.totalSize);
+          }
+          Debugf("\r\nUpdate Success: %u bytes\r\nRebooting...\r\n", upload.totalSize);
+        }
         else if(_serialDebugging)
+        {
           Update.printError(Serial);
+        }
 
         if(_serialDebugging)
+        {
           Serial.setDebugOutput(false);
-      }
-      else if(_serialDebugging)
+        }
+         
+      } // UPLOAD_FILE_END
+      else 
+      {
+        if(_serialDebugging)
+        {
         Serial.printf("Update Failed Unexpectedly (likely broken connection): status=%d\n", upload.status);
+        }
+        Debugf("Update Failed Unexpectedly (likely broken connection): status=%d\r\n", upload.status);
+      }
     });
 
     _server->begin();
