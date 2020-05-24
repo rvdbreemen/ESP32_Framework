@@ -5,8 +5,8 @@ R"(
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">  
-    <link rel="stylesheet" type="text/css" href="/index.css">
     <script src="/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="/index.css">
     <title>ESP32_Framework</title>
   </head>
   <body>
@@ -59,7 +59,21 @@ R"(
     <div id="message" class="bottom left-0">-</div>
   
     <script>
-       window.onload=bootsTrapMain;
+      function loadCSSIfNotAlreadyLoadedForSomeReason () 
+      {
+        var ss = document.styleSheets;
+        for (var i = 0, max = ss.length; i < max; i++) {
+          if (ss[i].href == "/index.css")
+            return;
+        }
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "/index.css";
+
+        document.getElementsByTagName("head")[0].appendChild(link);
+      }
+      loadCSSIfNotAlreadyLoadedForSomeReason();
+      window.onload=bootsTrapMain;
     </script>
 
   </body>

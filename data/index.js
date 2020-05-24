@@ -45,7 +45,7 @@
     needReload = false;
     refreshDevTime();
     refreshDevInfo();
-    refreshMessages();
+    //refreshMessages();
 
     document.getElementById("displayMainPage").style.display       = "block";
     document.getElementById("displaySettingsPage").style.display   = "none";

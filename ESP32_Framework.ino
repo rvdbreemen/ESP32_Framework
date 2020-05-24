@@ -13,7 +13,6 @@
 WiFiServer server(80);
 
 
-
 //=====================================================================
 void setup()
 {
@@ -42,10 +41,11 @@ void setup()
   int t = 0;
   while ((WiFi.status() != WL_CONNECTED) && (t < 25))
   {
-    delay(100);
+    delay(500);
     Serial.print(".");
     t++;
   }
+  Debugln();
   if ( WiFi.status() != WL_CONNECTED) 
   {
     sprintf(cMsg, "Connect to AP '%s' and configure WiFi on  192.168.4.1   ", _HOSTNAME);
