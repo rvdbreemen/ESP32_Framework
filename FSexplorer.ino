@@ -132,10 +132,10 @@ typedef struct _fileMeta {
         DebugTln(file.name());
         // directory is skipped
     } else {
-      DebugT("  FILE: ");
-      DebugT(file.name());
-      DebugT("\tSIZE: ");
-      DebugTln(file.size());
+      Debug("  FILE: ");
+      Debug(file.name());
+      Debug("\tSIZE: ");
+      Debugln(file.size());
       dirMap[fileNr].Name[0] = '\0';
       strncat(dirMap[fileNr].Name, file.name(), 29); // first copy file.name() to dirMap
       memmove(dirMap[fileNr].Name, dirMap[fileNr].Name+1, strlen(dirMap[fileNr].Name)); // remove leading '/'

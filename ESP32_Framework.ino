@@ -17,7 +17,6 @@ WiFiServer server(80);
   const char *flashMode[]         { "QIO", "QOUT", "DIO", "DOUT", "FAST READ", "SLOWREAD", "Unknown" };
 //    #define LED_ON      HIGH
 //    #define LED_OFF     LOW
-  #define SM_SERIAL Serial
   #include "SPIFFS.h"
 
 
@@ -51,10 +50,11 @@ void setup()
   int t = 0;
   while ((WiFi.status() != WL_CONNECTED) && (t < 25))
   {
-    delay(100);
+    delay(500);
     Serial.print(".");
     t++;
   }
+  Debugln();
   if ( WiFi.status() != WL_CONNECTED) 
   {
     sprintf(cMsg, "Connect to AP '%s' and configure WiFi on  192.168.4.1   ", _HOSTNAME);
