@@ -54,10 +54,10 @@ void setup()
   waitForSync(); 
   Timezone CET;
   CET.setLocation(F("Europe/Amsterdam"));
-  CET.setDefault();
-   
-  DebugTln("UTC time: "+ UTC.dateTime());
-  DebugTln("CET time: "+ CET.dateTime());
+  CET.setDefault(); 
+  
+  Serial.println("UTC time: "+ UTC.dateTime());
+  Serial.println("CET time: "+ CET.dateTime());
 
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]\r", ((String)esp_reset_reason()).c_str());
   DebugTln(cMsg);
