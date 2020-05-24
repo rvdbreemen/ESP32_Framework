@@ -1,23 +1,16 @@
 
 #define _FW_VERSION "v1.0.0 (23-05-2020)"
 
-
 #define _HOSTNAME   "ESP32framework"
 #include "ESP32_Framework.h"
 
 #define LED_BUILTIN 2
+//    #define LED_ON      HIGH
+//    #define LED_OFF     LOW
+
 
 // WiFi Server object and parameters
 WiFiServer server(80);
-
-  #define ESP_RESET()             ESP.restart()
-  #define ESP_RESET_REASON()      ((String)esp_reset_reason()).c_str()
-  #define ESP_GET_FREE_BLOCK()    ESP.getMaxAllocHeap()
-  #define ESP_GET_CHIPID()        ((uint32_t)ESP.getEfuseMac()) //The chipID is essentially its MAC address (length: 6 bytes) 
-  const char *flashMode[]         { "QIO", "QOUT", "DIO", "DOUT", "FAST READ", "SLOWREAD", "Unknown" };
-//    #define LED_ON      HIGH
-//    #define LED_OFF     LOW
-  #include "SPIFFS.h"
 
 
 //=====================================================================
@@ -27,8 +20,6 @@ void setup()
   while(!Serial) { /* wait a bit */ }
 
   lastReset     = ((String)esp_reset_reason()).c_str();
-
-  //startTelnet();
   
   DebugTln("\r\n[ESP32_Framework]\r\n");
   DebugTf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
@@ -66,7 +57,16 @@ void setup()
   digitalWrite(LED_BUILTIN, LOW);
 
   startMDNS(settingHostname);
-  //----startNTP();
+
+  //NTP syncing
+  // Uncomment the line below to see what it does behind the scenes
+  setDebug(INFO);  
+  waitForSync(); 
+  Timezone CET;
+  CET.setLocation(F("Europe/Amsterdam"));
+   
+  Serial.println("UTC time: "+ UTC.dateTime());
+  Serial.println("CET time: "+ CET.dateTime());
 
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]\r", ((String)esp_reset_reason()).c_str());
   DebugTln(cMsg);
@@ -102,7 +102,7 @@ void setup()
 //=====================================================================
 void loop()
 {
-  //---handleNTP();
+  events(); //handle NTP events
   httpServer.handleClient();
   //MDNS.update();
 

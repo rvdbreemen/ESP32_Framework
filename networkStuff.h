@@ -37,7 +37,6 @@
   #include <WebServer.h>
   #include <ESPmDNS.h>
   #include <WiFiUdp.h>            // part of ESP32 Core
-  //#include <Esp32WifiManager.h>
   #include <WiFiManager.h>  // https://github.com/tzapu/WiFiManager/releases 2.0.1-alpha
 
   #include <FS.h>
@@ -47,8 +46,6 @@
   #include "UpdateServerHtml.h"   
 
   WebServer        httpServer(80);
-
-
   ESP32HTTPUpdateServer httpUpdater(true);
 
 //static      FSInfo SPIFFSinfo;
