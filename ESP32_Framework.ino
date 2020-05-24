@@ -1,12 +1,12 @@
 
-#define _FW_VERSION "v1.0.0 (23-05-2020)"
+#define _FW_VERSION "v1.0.2 (24-05-2020)"
 
 #define _HOSTNAME   "ESP32framework"
 #include "ESP32_Framework.h"
 
-#define LED_BUILTIN 2
-//    #define LED_ON      HIGH
-//    #define LED_OFF     LOW
+#define LED_BUILTIN 2     // GPIO-02
+#define LED_ON      HIGH
+#define LED_OFF     LOW
 
 
 // WiFi Server object and parameters
@@ -20,6 +20,8 @@ void setup()
   while(!Serial) { /* wait a bit */ }
 
   lastReset     = ((String)esp_reset_reason()).c_str();
+
+  pinMode(LED_BUILTIN, OUTPUT);
   
   DebugTln("\r\n[ESP32_Framework]\r\n");
   DebugTf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
@@ -38,40 +40,27 @@ void setup()
 
   // attempt to connect to Wifi network:
   DebugTln("Attempting to connect to WiFi network\r");
-  int t = 0;
-  while ((WiFi.status() != WL_CONNECTED) && (t < 25))
-  {
-    delay(500);
-    Serial.print(".");
-    t++;
-  }
-  Debugln();
-  if ( WiFi.status() != WL_CONNECTED) 
-  {
-    sprintf(cMsg, "Connect to AP '%s' and configure WiFi on  192.168.4.1   ", _HOSTNAME);
-    DebugTln(cMsg);
-  }
   // Connect to and initialise WiFi network
   digitalWrite(LED_BUILTIN, HIGH);
   startWiFi(_HOSTNAME, 240);  // timeout 4 minuten
   digitalWrite(LED_BUILTIN, LOW);
 
+  startTelnet();
+
   startMDNS(settingHostname);
 
-  //NTP syncing
-  // Uncomment the line below to see what it does behind the scenes
+  //--- ezTime initialisation
   setDebug(INFO);  
   waitForSync(); 
   Timezone CET;
   CET.setLocation(F("Europe/Amsterdam"));
+  CET.setDefault();
    
-  Serial.println("UTC time: "+ UTC.dateTime());
-  Serial.println("CET time: "+ CET.dateTime());
+  DebugTln("UTC time: "+ UTC.dateTime());
+  DebugTln("CET time: "+ CET.dateTime());
 
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]\r", ((String)esp_reset_reason()).c_str());
   DebugTln(cMsg);
-
-  startTelnet();
 
   Serial.print("\nGebruik 'telnet ");
   Serial.print (WiFi.localIP());
@@ -80,11 +69,12 @@ void setup()
 //================ Start HTTP Server ================================
   setupFSexplorer();
   httpServer.serveStatic("/FSexplorer.png",   SPIFFS, "/FSexplorer.png");
+//  httpServer.serveStatic("/", SPIFFS, "/index.html");
   httpServer.on("/",          sendIndexPage);
   httpServer.on("/index",     sendIndexPage);
   httpServer.on("/index.html",sendIndexPage);
-  httpServer.serveStatic("/index.css", SPIFFS, "/index.css");
-  httpServer.serveStatic("/index.js",  SPIFFS, "/index.js");
+  //httpServer.serveStatic("/index.css", SPIFFS, "/index.css");
+  //httpServer.serveStatic("/index.js",  SPIFFS, "/index.js");
   // all other api calls are catched in FSexplorer onNotFounD!
   httpServer.on("/api", HTTP_GET, processAPI);
 
@@ -107,5 +97,10 @@ void loop()
   //MDNS.update();
 
   //--- Eat your hart out!
+  if (millis() > ledTimer)
+  {
+    ledTimer = millis() + 2000;
+    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+  }
   
 } // loop()

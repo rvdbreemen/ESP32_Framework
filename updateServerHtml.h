@@ -23,10 +23,10 @@ static const char UpdateServerIndex[] PROGMEM =
       en zet deze na het flashen van SPIFFS weer terug.
       <hr>
       <br/>
-      <br/>Wacht nog <span style='font-size: 1.3em;' id="waitSeconds">60</span> seconden ..
-      <br>Als het lijkt of er niets gebeurd, wacht dan tot de teller
-           op 'nul' staat en klik daarna <span style='font-size:1.3em;'><b><a href="/">hier</a></b></span>!
+      <br>klik <span style='font-size:1.3em;'><b><a href="/">hier</a></b></span>
+          om terug te keren naar de hoofdpagina!
      </body>
+     /*
      <script>
          var seconds = document.getElementById("waitSeconds").textContent;
          var countdown = setInterval(function() {
@@ -38,6 +38,7 @@ static const char UpdateServerIndex[] PROGMEM =
            }
          }, 1000);
      </script>
+     */
      </html>)";
 
 static const char UpdateServerSuccess[] PROGMEM = 
@@ -53,7 +54,7 @@ static const char UpdateServerSuccess[] PROGMEM =
      <br/>Wait for the ESP32_Framework to reboot and start the HTTP server
      <br/>
      <br>
-     <br/>Wacht nog <span style='font-size: 1.3em;' id="waitSeconds">60</span> seconden ..
+     <br/>Wacht nog <span style='font-size: 1.3em;' id="waitSeconds">30</span> seconden ..
      <br/>Als het lijkt of er niets gebeurd, wacht dan tot de teller
           op 'nul' staat en klik daarna <span style='font-size:1.3em;'><b><a href="/">hier</a></b></span>!
      </body>

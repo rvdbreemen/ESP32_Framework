@@ -12,7 +12,8 @@
 
 "use strict";
 
-  let needReload  = true;
+  var needReload  = true;
+  var timeTimer;
   
   window.onload=bootsTrapMain;
   window.onfocus = function() {
@@ -24,6 +25,9 @@
   //============================================================================  
   function bootsTrapMain() {
     console.log("bootsTrapMain()");
+    //-------------------------
+    loadCSSagain();
+    //-------------------------
     document.getElementById('saveMsg').addEventListener('click',function() 
                                                 {saveMessages();});
     document.getElementById('M_FSexplorer').addEventListener('click',function() 
@@ -43,12 +47,33 @@
     document.getElementById('saveSettings').addEventListener('click',function() 
                                                 {saveSettings();});
     needReload = false;
-    refreshDevTime();
-    refreshDevInfo();
+    //refreshDevInfo();
+    //refreshDevTime();
+    if (document.getElementById("devName").value == "devName")
+    {
+      console.log(document.getElementById("devName").value);
+      refreshDevInfo();
+    }
+    if (document.getElementById("theTime").value == "theTime")
+    {
+      console.log(document.getElementById("theTime").value);
+      refreshDevTime();
+    }
     //refreshMessages();
+    clearInterval(timeTimer);  
+    timeTimer = setInterval(refreshDevTime, 10 * 1000); // repeat every 10s
 
     document.getElementById("displayMainPage").style.display       = "block";
     document.getElementById("displaySettingsPage").style.display   = "none";
+    //refreshDevInfo();
+
+    document.getElementById("M_FSexplorer").src="/FSexplorer.png";
+    document.getElementById("Settings").src="/settings.png";
+    document.getElementById("S_FSexplorer").src="/FSexplorer.png";
+    document.getElementById("Settings").src="/settings.png";
+
+//    loadImage('M_FSexplorer', '/FSexplorer.png');  
+//    loadImage('Settings',     '/settings.png');  
   
   } // bootsTrapMain()
 
@@ -70,7 +95,7 @@
     fetch(APIGW+"v0/devtime")
       .then(response => response.json())
       .then(json => {
-        console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
+        //console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
         for( let i in json.devtime ){
             if (json.devtime[i].name == "dateTime")
             {
@@ -361,31 +386,6 @@
     } 
     
   } // saveSettings()
-
-  
-/****  
-  //============================================================================  
-  function saveSettings() 
-  {
-    console.log("saveSettings() ...");
-    var settings = document.getElementById("settingsPage").getElementsByTagName('div');;
-    for(var i = 0; i < settings.length; i++){
-      //do something to each div like
-      //console.log(settings[i].innerHTML);
-      Dname = settings[i].getAttribute("id");
-      if (Dname != null)
-      {
-        //console.log("Dname["+Dname+"]");
-        field = Dname.substr(2);
-        value = document.getElementById(field).value;
-        console.log("==> name["+field+"], value["+value+"]");
-        sendPostSetting(field, value) 
-        //console.log("value["+value+"]");
-      }
-    }    
-    
-  } // saveSettings()
-****/
     
   //============================================================================  
   function sendPostMessages(field, value) 
@@ -434,6 +434,36 @@
       
   } // sendPostSetting()
 
+  
+  //============================================================================  
+  function loadCSSagain () 
+  {
+    for(var i=0; i<5; i++)
+    {
+    var ss = document.styleSheets;
+    for (var i = 0, max = ss.length; i < max; i++) {
+      if (ss[i].href == "/index.css")
+      {
+        console.log("/index.css seems to be loaded");
+        return;
+      }
+    }
+    console.log("/index.css is NOT loaded .. try again");
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "/index.css";
+    document.getElementsByTagName("head")[0].appendChild(link);
+    }
+  }
+
+  
+  //============================================================================  
+  function loadImage(divId, thisImg) 
+  {
+    var img = document.createElement("IMG");    
+    img.src = thisImg;
+    document.getElementById(divId).appendChild(img);
+  }
   
   //============================================================================  
   function translateToHuman(longName) {
