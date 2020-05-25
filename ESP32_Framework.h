@@ -16,6 +16,7 @@ char      fChar[10];
 String    lastReset   = "";
 char      settingHostname[41];
 uint32_t  ledTimer;
+Timezone  CET;
 
 const char *weekDayName[]  {  "Unknown", "Zondag", "Maandag", "Dinsdag", "Woensdag"
                             , "Donderdag", "Vrijdag", "Zaterdag", "Unknown" };

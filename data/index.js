@@ -26,7 +26,7 @@
   function bootsTrapMain() {
     console.log("bootsTrapMain()");
     //-------------------------
-    loadCSSagain();
+    //--loadCSSagain();
     //-------------------------
     document.getElementById('saveMsg').addEventListener('click',function() 
                                                 {saveMessages();});
@@ -47,7 +47,7 @@
     document.getElementById('saveSettings').addEventListener('click',function() 
                                                 {saveSettings();});
     needReload = false;
-    //refreshDevInfo();
+    refreshDevInfo();
     //refreshDevTime();
     if (document.getElementById("devName").value == "devName")
     {
