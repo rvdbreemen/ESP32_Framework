@@ -46,6 +46,9 @@ void setup()
   digitalWrite(LED_BUILTIN, LOW);
 
   startTelnet();
+  Serial.print("\nGebruik 'telnet ");
+  Serial.print (WiFi.localIP());
+  Serial.println("' voor verdere debugging\r\n");
 
   startMDNS(settingHostname);
 
@@ -55,15 +58,11 @@ void setup()
   CET.setLocation(F("Europe/Amsterdam"));
   CET.setDefault(); 
   
-  Serial.println("UTC time: "+ UTC.dateTime());
-  Serial.println("CET time: "+ CET.dateTime());
+  Debugln("UTC time: "+ UTC.dateTime());
+  Debugln("CET time: "+ CET.dateTime());
 
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]\r", ((String)esp_reset_reason()).c_str());
   DebugTln(cMsg);
-
-  Serial.print("\nGebruik 'telnet ");
-  Serial.print (WiFi.localIP());
-  Serial.println("' voor verdere debugging\r\n");
 
 //================ Start HTTP Server ================================
   setupFSexplorer();

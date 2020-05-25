@@ -57,10 +57,12 @@ R"(
 
     <!-- Pin to bottom left corner -->
     <div id="message" class="bottom left-0">-</div>
-  
+
     <script>
       console.log("now continue with the bootstrapMain");
-      if (typeof bootsTrapMain !== "function") { 
+      /*****
+      if (typeof bootsTrapMain !== "function") 
+      { 
         console.log("bootsTrapMain() does NOT exist ;-) ");
         var mainJaveScript = '/index.js';
         var el = document.createElement('script');
@@ -72,6 +74,7 @@ R"(
       document.getElementById("M_FSexplorer").src="/FSexplorer.png";
       document.getElementById("Settings").src="/settings.png";
       document.getElementById("S_FSexplorer").src="/FSexplorer.png";
+      *****/
       window.onload=bootsTrapMain;
     </script>
 
