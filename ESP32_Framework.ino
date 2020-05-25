@@ -72,8 +72,8 @@ void setup()
   httpServer.on("/",          sendIndexPage);
   httpServer.on("/index",     sendIndexPage);
   httpServer.on("/index.html",sendIndexPage);
-  //httpServer.serveStatic("/index.css", SPIFFS, "/index.css");
-  //httpServer.serveStatic("/index.js",  SPIFFS, "/index.js");
+  httpServer.serveStatic("/index.css", SPIFFS, "/index.css");
+  httpServer.serveStatic("/index.js",  SPIFFS, "/index.js");
   // all other api calls are catched in FSexplorer onNotFounD!
   httpServer.on("/api", HTTP_GET, processAPI);
 
@@ -100,6 +100,7 @@ void loop()
   {
     ledTimer = millis() + 2000;
     digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    DebugTln("Blink led");
   }
   
 } // loop()
